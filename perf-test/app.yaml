@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: ${app_name}
+objects:
+  # Deployment
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: ${app_name}
+    spec:
+      replicator: 1
+      selector:
+        matchLabels:
+          app: ${app_name}
+      template:
+        metadata:
+          labels:
+            app: ${app_name}
+        spec:
+          containers:
+            - image: quay.io/openshift-logging/cluster-logging-load-client:latest
+              imagePullPolicy: Always
+              name: ${app_name}
+              args: ["generate"]
+
+parameters:
+  - name: app_name
+    value: myapp

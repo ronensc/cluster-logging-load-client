@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: ${app_name}
+objects:
+  # Deployment
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: ${app_name}
+    spec:
+      replicator: 1
+      selector:
+        matchLabels:
+          app: ${app_name}
+      template:
+        metadata:
+          labels:
+            app: ${app_name}
+            logFormat: redhat
+        spec:
+          containers:
+            - image: centos:centos7
+              imagePullPolicy: IfNotPresent
+              name: ${app_name}
+              args:
+                - "python2"
+                - "-c"
+                - |
+                    import time,json,sys,datetime
+                    def set_vals():
+                      data["level"] = "debug"
+                      data["logtext"] = "hey, this is a log line"
+
+                    i=0
+                    while True:
+                      i=i+1
+                      ts=time.time()
+                      data={
+                      "timestamp"   :datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S'),
+                      "index"       :i,
+                      }
+                      set_vals()
+                      print json.dumps(data)
+                      sys.stdout.flush()
+                      time.sleep(1)
+
+
+parameters:
+  - name: app_name
+    value: my-log-generator
