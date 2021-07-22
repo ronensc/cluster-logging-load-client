@@ -1,16 +1,31 @@
 apiVersion: "logging.openshift.io/v1"
 kind: ClusterLogForwarder
 metadata:
-  name: instance 
-  namespace: openshift-logging 
+  name: instance
+  namespace: openshift-logging
 spec:
   outputDefaults:
     elasticsearch:
-       structuredTypeName: myappindex
+      structuredTypeName: myappindex
+  inputs:
+    - name: myapp
+      application:
+        namespaces:
+          - myapp
+    - name: myapp2
+      application:
+        namespaces:
+          - myapp2
   pipelines:
-   - name: application-logs 
-     inputRefs: 
-     - application
-     outputRefs:
-     - default
-     parse: json
+    - name: application-logs
+      inputRefs:
+        - myapp
+      outputRefs:
+        - default
+      parse: json
+
+    - name: application-logs2
+      inputRefs:
+        - myapp2
+      outputRefs:
+        - default
