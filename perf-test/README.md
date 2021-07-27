@@ -27,7 +27,7 @@ oc exec -it $(oc get po -l "component=elasticsearch" -o jsonpath={.items[0].meta
 
 Query 3 last documents of an index
 ```
-export Q_INDEX="app-000001"
+export Q_INDEX="app-redhat-000001" && \
 echo '{
     "size": 3,
     "sort": { "@timestamp": "desc"},
@@ -36,3 +36,11 @@ echo '{
     }
 }' | oc exec -i $(oc get po -l "component=elasticsearch" -o name | head -n1) -- es_util --query="$Q_INDEX/_search" -d @- | jq .
 ```
+
+
+TODO: 
+- deploy each app with different logFormat
+- try renaming logFormat
+- deploy multiple apps with multiple pods to different indices
+- deploy app that don't use the ingest plugin
+- Check whether Eran's logger supports JSON logs

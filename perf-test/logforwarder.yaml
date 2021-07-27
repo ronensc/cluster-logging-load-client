@@ -7,6 +7,7 @@ spec:
   outputDefaults:
     elasticsearch:
       structuredTypeName: myappindex
+      structuredTypeKey: kubernetes.labels.logFormat
   inputs:
     - name: myapp
       application:
@@ -29,3 +30,4 @@ spec:
         - myapp2
       outputRefs:
         - default
+      parse: json
