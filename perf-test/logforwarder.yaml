@@ -1,33 +1,42 @@
-apiVersion: "logging.openshift.io/v1"
-kind: ClusterLogForwarder
+apiVersion: v1
+kind: Template
 metadata:
   name: instance
   namespace: openshift-logging
-spec:
-  outputDefaults:
-    elasticsearch:
-      structuredTypeName: myappindex
-      structuredTypeKey: kubernetes.labels.logFormat
-  inputs:
-    - name: myapp
-      application:
-        namespaces:
-          - myapp
-    - name: myapp2
-      application:
-        namespaces:
-          - myapp2
-  pipelines:
-    - name: application-logs
-      inputRefs:
-        - myapp
-      outputRefs:
-        - default
-      parse: json
+objects:
+  - apiVersion: "logging.openshift.io/v1"
+    kind: ClusterLogForwarder
+    metadata:
+      name: instance
+      namespace: openshift-logging
+    spec:
+      outputDefaults:
+        elasticsearch:
+          structuredTypeKey: kubernetes.labels.logFormat
+      inputs:
+        - name: app-structured
+          application:
+            namespaces:
+              - ${app_structured_ns}
+        - name: app-unstructured
+          application:
+            namespaces:
+              - ${app_unstructured_ns}
+      pipelines:
+        - name: application-logs
+          inputRefs:
+            - app-structured
+          outputRefs:
+            - default
+          parse: json
 
-    - name: application-logs2
-      inputRefs:
-        - myapp2
-      outputRefs:
-        - default
-      parse: json
+        - name: application-logs2
+          inputRefs:
+            - app-unstructured
+          outputRefs:
+            - default
+
+parameters:
+  - name: app_structured_ns
+  - name: app_unstructured_ns
+

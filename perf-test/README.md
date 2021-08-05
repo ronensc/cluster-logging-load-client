@@ -21,7 +21,7 @@ oc apply -f ./perf-test/logforwarder.yaml
 
 List indices
 ```
-oc exec -it $(oc get po -l "component=elasticsearch" -o jsonpath={.items[0].metadata.name}) -- es_util --query="_cat/indices"
+oc exec -it -n openshift-logging $(oc get po -n openshift-logging -l "component=elasticsearch" -o jsonpath={.items[0].metadata.name}) -- es_util --query="_cat/indices"
 ```
 
 
@@ -38,7 +38,7 @@ echo '{
 ```
 
 
-TODO: 
+TODO:
 - deploy each app with different logFormat
 - try renaming logFormat
 - deploy multiple apps with multiple pods to different indices

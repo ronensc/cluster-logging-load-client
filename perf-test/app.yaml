@@ -9,7 +9,7 @@ objects:
     metadata:
       name: ${app_name}
     spec:
-      replicator: 1
+      replicas: ${{replicas}}
       selector:
         matchLabels:
           app: ${app_name}
@@ -17,13 +17,29 @@ objects:
         metadata:
           labels:
             app: ${app_name}
+            logFormat: myformat
         spec:
           containers:
-            - image: quay.io/openshift-logging/cluster-logging-load-client:latest
-              imagePullPolicy: Always
+            - image: ${image}
+              imagePullPolicy: IfNotPresent
               name: ${app_name}
-              args: ["generate"]
+              args:
+                - "generate"
+                - "--output-format"
+                - "json"
+                - "--totalLogLines"
+                - "${total_log_lines}"
+                - "--log-lines-rate"
+                - "${log_lines_rate}"
 
 parameters:
+  - name: image
+    value: "quay.io/openshift-logging/cluster-logging-load-client:latest"
+  - name: replicas
+    value: "1"
+  - name: total_log_lines
+    value: "1000"
+  - name: log_lines_rate
+    value: "1"
   - name: app_name
     value: myapp
