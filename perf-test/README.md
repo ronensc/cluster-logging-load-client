@@ -21,7 +21,7 @@ oc apply -f ./perf-test/logforwarder.yaml
 
 List indices
 ```
-oc exec -it -n openshift-logging $(oc get po -n openshift-logging -l "component=elasticsearch" -o jsonpath={.items[0].metadata.name}) -- es_util --query="_cat/indices"
+oc exec -it -n openshift-logging $(oc get po -n openshift-logging -l "component=elasticsearch" -o jsonpath={.items[0].metadata.name}) -- es_util --query="_cat/indices?v=true"
 ```
 
 

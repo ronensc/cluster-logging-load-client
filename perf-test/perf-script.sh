@@ -4,8 +4,8 @@ TOP_LEVEL_DIR=$(git rev-parse --show-toplevel)
 APP_IMAGE="docker.io/ronensch/cluster-logging-load-client:latest"
 APP_STRUCTRED_NS="logger-structured"
 APP_UNSTRUCTRED_NS="logger-unstructured"
-REPLICAS=2
-LOG_LINES_RATE=5
+REPLICAS=200
+LOG_LINES_RATE=10
 
 function install-EO() {
   echo ">>> Installing elasticsearch operator"
@@ -44,6 +44,14 @@ function instantiate-CLO() {
   oc create -n openshift-logging -f "$TOP_LEVEL_DIR/perf-test/cr.yaml"
 }
 
+function create-app-namespaces() {
+  echo ">>> Createing namespace $APP_STRUCTRED_NS"
+  oc create ns "$APP_STRUCTRED_NS"
+
+  echo ">>> Createing namespace $APP_UNSTRUCTRED_NS"
+  oc create ns "$APP_UNSTRUCTRED_NS"
+}
+
 function deploy-log-forwarder() {
   echo ">>> Configuring log forwarder"
   oc process -f "$TOP_LEVEL_DIR/perf-test/logforwarder.yaml" \
@@ -54,7 +62,6 @@ function deploy-log-forwarder() {
 
 function deploy-app-structured() {
   echo ">>> Deploying app structured"
-  oc create ns "$APP_STRUCTRED_NS"
   oc project "$APP_STRUCTRED_NS"
   oc process -f "$TOP_LEVEL_DIR/perf-test/app.yaml" \
     -p image="$APP_IMAGE" \
@@ -71,7 +78,6 @@ function cleanup-app-structured() {
 
 function deploy-app-unstructured() {
   echo ">>> Deploying app unstructured"
-  oc create ns "$APP_UNSTRUCTRED_NS"
   oc project "$APP_UNSTRUCTRED_NS"
   oc process -f "$TOP_LEVEL_DIR/perf-test/app.yaml" \
     -p image="$APP_IMAGE" \
@@ -92,10 +98,10 @@ function run() {
     install-CLO
     instantiate-CLO
   fi
-  # TODO: deploy log-forwarder before apps
-  deploy-app-structured
-  deploy-app-unstructured
+  create-app-namespaces
   deploy-log-forwarder
+  deploy-app-structured
+#  deploy-app-unstructured
 }
 
 function cleanup() {
