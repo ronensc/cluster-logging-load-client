@@ -95,25 +95,27 @@ function cleanup-app-unstructured() {
   oc delete ns "$APP_UNSTRUCTRED_NS"
 }
 
+function deploy_ops() {
+  install-EO
+  install-CLO
+  instantiate-CLO
+}
+
 function run() {
-  if [ -z "$SKIP_OPS" ]; then
-    install-EO
-    install-CLO
-    instantiate-CLO
-  fi
   create-app-namespaces
   deploy-log-forwarder
   deploy-app-unstructured
   deploy-app-structured
 }
 
-function cleanup() {
+function cleanup_ops() {
+  cleanup-CLO
+  cleanup-EO
+}
+
+function cleanup_apps() {
   cleanup-app-structured
   cleanup-app-unstructured
-  if [ -z "$SKIP_OPS" ]; then
-    cleanup-CLO
-    cleanup-EO
-  fi
 }
 
 function show_usage() {
@@ -124,9 +126,10 @@ function main() {
   for i in "$@"
   do
   case $i in
-      --skip-ops) SKIP_OPS=1; shift ;;
+      --deploy-ops) deploy_ops; shift ;;
       --run) run; shift ;;
-      --cleanup) cleanup; shift ;;
+      --cleanup-ops) cleanup_ops; shift ;;
+      --cleanup-apps) cleanup_apps; shift ;;
       -h|--help|*) show_usage ;;
   esac
   done
