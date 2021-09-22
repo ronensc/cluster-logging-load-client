@@ -96,22 +96,24 @@ function cleanup-app-unstructured() {
 }
 
 function run() {
-  if [ -z "$SKIP_CLO" ]; then
+  if [ -z "$SKIP_OPS" ]; then
     install-EO
     install-CLO
     instantiate-CLO
   fi
   create-app-namespaces
   deploy-log-forwarder
+  deploy-app-unstructured
   deploy-app-structured
-#  deploy-app-unstructured
 }
 
 function cleanup() {
-  cleanup-CLO
-  cleanup-EO
   cleanup-app-structured
   cleanup-app-unstructured
+  if [ -z "$SKIP_OPS" ]; then
+    cleanup-CLO
+    cleanup-EO
+  fi
 }
 
 function show_usage() {
@@ -122,6 +124,7 @@ function main() {
   for i in "$@"
   do
   case $i in
+      --skip-ops) SKIP_OPS=1; shift ;;
       --run) run; shift ;;
       --cleanup) cleanup; shift ;;
       -h|--help|*) show_usage ;;
