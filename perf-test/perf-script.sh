@@ -6,6 +6,7 @@ APP_STRUCTRED_NS="logger-structured"
 APP_UNSTRUCTRED_NS="logger-unstructured"
 REPLICAS=200
 LOG_LINES_RATE=10
+LOG_LINES_PER_INSTANCE=10000
 
 function install-EO() {
   echo ">>> Installing elasticsearch operator"
@@ -67,6 +68,7 @@ function deploy-app-structured() {
     -p image="$APP_IMAGE" \
     -p replicas=$REPLICAS \
     -p log_lines_rate=$LOG_LINES_RATE \
+    -p total_log_lines=$LOG_LINES_PER_INSTANCE \
     -p app_name="logger-structured" \
   | oc apply -n "$APP_STRUCTRED_NS" -f -
 }
@@ -83,6 +85,7 @@ function deploy-app-unstructured() {
     -p image="$APP_IMAGE" \
     -p replicas=$REPLICAS \
     -p log_lines_rate=$LOG_LINES_RATE \
+    -p total_log_lines=$LOG_LINES_PER_INSTANCE \
     -p app_name="logger-unstructured" \
   | oc apply -n "$APP_UNSTRUCTRED_NS" -f -
 }
