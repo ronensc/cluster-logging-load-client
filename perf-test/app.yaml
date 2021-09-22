@@ -3,22 +3,21 @@ kind: Template
 metadata:
   name: ${app_name}
 objects:
-  # Deployment
-  - apiVersion: apps/v1
-    kind: Deployment
+  # Job
+  - apiVersion: batch/v1
+    kind: Job
     metadata:
       name: ${app_name}
     spec:
-      replicas: ${{replicas}}
-      selector:
-        matchLabels:
-          app: ${app_name}
+      completions: ${{replicas}}
+      parallelism: ${{replicas}}
       template:
         metadata:
           labels:
             app: ${app_name}
             logFormat: myformat
         spec:
+          restartPolicy: Never
           containers:
             - image: ${image}
               imagePullPolicy: IfNotPresent
