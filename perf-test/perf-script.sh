@@ -104,7 +104,13 @@ function deploy_ops() {
 function run() {
   create-app-namespaces
   deploy-log-forwarder
+  echo ">>> Wait for fluentd pods to be ready"
+  # "oc wait" is not enough as if no pods were created yet, it doesn't wait. That's why, "oc rollout" is run before.
+  oc rollout status daemonset/fluentd
+  oc wait --for=condition=ready pod -n openshift-logging -l component=fluentd
   deploy-app-unstructured
+  echo ">>> Wait for 30 seconds to build stress on elasticsearch"
+  sleep 30s
   deploy-app-structured
 }
 
