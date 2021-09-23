@@ -27,20 +27,28 @@ oc exec -it -n openshift-logging $(oc get po -n openshift-logging -l "component=
 
 Query 3 last documents of an index
 ```
-export Q_INDEX="app-redhat-000001" && \
+export Q_INDEX="app-myformat-000001" && \
 echo '{
     "size": 3,
     "sort": { "@timestamp": "desc"},
     "query": {
         "match_all": {}
     }
-}' | oc exec -i $(oc get po -l "component=elasticsearch" -o name | head -n1) -- es_util --query="$Q_INDEX/_search" -d @- | jq .
+}' | oc exec -i -n openshift-logging $(oc get po -n openshift-logging -l "component=elasticsearch" -o name | head -n1) -- es_util --query="$Q_INDEX/_search" -d @- | jq .
 ```
 
 
-TODO:
-- deploy each app with different logFormat
-- try renaming logFormat
-- deploy multiple apps with multiple pods to different indices
-- deploy app that don't use the ingest plugin
-- Check whether Eran's logger supports JSON logs
+Query pending tasks
+```
+oc exec -it -n openshift-logging $(oc get po -n openshift-logging -l "component=elasticsearch" -o jsonpath={.items[0].metadata.name}) -- es_util --query="_cluster/pending_tasks"
+```
+
+Cluster health
+```
+oc exec -it -n openshift-logging $(oc get po -n openshift-logging -l "component=elasticsearch" -o jsonpath={.items[0].metadata.name}) -- es_util --query="_cluster/health?pretty"
+```
+
+Promethues metric to measure elasticsearch pod's CPU
+```
+pod:container_cpu_usage:sum{namespace="openshift-logging", pod=~'elasticsearch-cdm-.*'}
+```
