@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 TOP_LEVEL_DIR=$(git rev-parse --show-toplevel)
-APP_IMAGE="docker.io/ronensch/cluster-logging-load-client:latest"
+APP_IMAGE="quay.io/openshift-logging/cluster-logging-load-client:0.1"
 APP_STRUCTRED_NS="logger-structured"
 APP_UNSTRUCTRED_NS="logger-unstructured"
 REPLICAS=200
