@@ -5,7 +5,7 @@ APP_IMAGE="quay.io/openshift-logging/cluster-logging-load-client:0.1"
 APP_STRUCTRED_NS="logger-structured"
 APP_UNSTRUCTRED_NS="logger-unstructured"
 REPLICAS=200
-LOG_LINES_RATE=10
+LOG_LINES_RATE=500
 LOG_LINES_PER_INSTANCE=10000
 
 function install-EO() {
