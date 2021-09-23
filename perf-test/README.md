@@ -1,23 +1,21 @@
-
-Deploy 1st app
+# How to use 
+Setup
 ```
-oc create ns myapp
-oc project myapp
-oc process -f ./perf-test/app-python.yaml -n myapp | oc apply -n myapp -f -
+./perf-test/perf-script.sh --deploy-ops
 ```
 
-
-Deploy 2nd app
+Run test
 ```
-oc create ns myapp2
-oc project myapp2
-oc process -f ./perf-test/app-python.yaml -n myapp2 | oc apply -n myapp2 -f -
+./perf-test/perf-script.sh --run
 ```
 
+Cleanup
 ```
-oc project openshift-logging
-oc apply -f ./perf-test/logforwarder.yaml
+./perf-test/perf-script.sh --cleanup-apps --cleanup-ops
 ```
+
+
+## Useful commands
 
 List indices
 ```
