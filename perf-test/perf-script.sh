@@ -57,8 +57,8 @@ function deploy-log-forwarder() {
   echo ">>> Configuring log forwarder"
   oc process -f "$TOP_LEVEL_DIR/perf-test/logforwarder.yaml" \
     -p app_structured_ns="$APP_STRUCTRED_NS" \
-    -p app_unstructured_ns="$APP_UNSTRUCTRED_NS" \
-  | oc apply -n openshift-logging -f -
+    -p app_unstructured_ns="$APP_UNSTRUCTRED_NS" |
+    oc apply -n openshift-logging -f -
 }
 
 function deploy-app-structured() {
@@ -69,8 +69,8 @@ function deploy-app-structured() {
     -p replicas=$REPLICAS \
     -p log_lines_rate=$LOG_LINES_RATE \
     -p total_log_lines=$LOG_LINES_PER_INSTANCE \
-    -p app_name="logger-structured" \
-  | oc apply -n "$APP_STRUCTRED_NS" -f -
+    -p app_name="logger-structured" |
+    oc apply -n "$APP_STRUCTRED_NS" -f -
 }
 
 function cleanup-app-structured() {
@@ -86,8 +86,8 @@ function deploy-app-unstructured() {
     -p replicas=$REPLICAS \
     -p log_lines_rate=$LOG_LINES_RATE \
     -p total_log_lines=$LOG_LINES_PER_INSTANCE \
-    -p app_name="logger-unstructured" \
-  | oc apply -n "$APP_UNSTRUCTRED_NS" -f -
+    -p app_name="logger-unstructured" |
+    oc apply -n "$APP_UNSTRUCTRED_NS" -f -
 }
 
 function cleanup-app-unstructured() {
@@ -123,15 +123,26 @@ function show_usage() {
 }
 
 function main() {
-  for i in "$@"
-  do
-  case $i in
-      --deploy-ops) deploy_ops; shift ;;
-      --run) run; shift ;;
-      --cleanup-ops) cleanup_ops; shift ;;
-      --cleanup-apps) cleanup_apps; shift ;;
-      -h|--help|*) show_usage ;;
-  esac
+  for i in "$@"; do
+    case $i in
+    --deploy-ops)
+      deploy_ops
+      shift
+      ;;
+    --run)
+      run
+      shift
+      ;;
+    --cleanup-ops)
+      cleanup_ops
+      shift
+      ;;
+    --cleanup-apps)
+      cleanup_apps
+      shift
+      ;;
+    -h | --help | *) show_usage ;;
+    esac
   done
 }
 
