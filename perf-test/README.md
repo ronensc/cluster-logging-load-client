@@ -46,7 +46,21 @@ Cluster health
 oc exec -it -n openshift-logging $(oc get po -n openshift-logging -l "component=elasticsearch" -o jsonpath={.items[0].metadata.name}) -- es_util --query="_cluster/health?pretty"
 ```
 
+Manually set rollover
+```
+oc exec -it -n openshift-logging $(oc get po -n openshift-logging -l "component=elasticsearch" -o jsonpath={.items[0].metadata.name}) -c elasticsearch -- es_util --query="app-write/_rollover" -XPOST -d'
+{
+  "conditions": {
+    "max_age":   "2m",
+    "max_docs":  100,
+    "max_size":  "0.6gb"
+  }
+}
+' -v
+```
+
 Promethues metric to measure elasticsearch pod's CPU
 ```
 pod:container_cpu_usage:sum{namespace="openshift-logging", pod=~'elasticsearch-cdm-.*'}
+es_process_cpu_percent
 ```

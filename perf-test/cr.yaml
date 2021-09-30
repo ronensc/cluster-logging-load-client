@@ -5,12 +5,19 @@ metadata:
 spec:
   logStore:
     type: "elasticsearch"
+    retentionPolicy:
+      application:
+        maxAge: 1m
+      infra:
+        maxAge: 1m
+      audit:
+        maxAge: 1m
     elasticsearch:
       nodeCount: 3
       resources:
         requests:
           limits: 2Gi
-      redundancyPolicy: "ZeroRedundancy"
+      redundancyPolicy: "FullRedundancy"
   visualization:
     type: "kibana"
     kibana:
