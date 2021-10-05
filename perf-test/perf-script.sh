@@ -43,6 +43,8 @@ function instantiate-CLO() {
   oc project openshift-logging
   echo ">>> Instantiating CLO"
   oc create -n openshift-logging -f "$TOP_LEVEL_DIR/perf-test/cr.yaml"
+  echo ">>> Installing rollover cronjob"
+  oc create -n openshift-logging -f "$TOP_LEVEL_DIR/perf-test/rollover.yaml"
 }
 
 function create-app-namespaces() {

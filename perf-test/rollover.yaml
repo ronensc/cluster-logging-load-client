@@ -1,0 +1,80 @@
+# Based on EO cronjobs created when settings retentionPolicy
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+#  labels:
+#    component: indexManagement
+#    logging-infra: indexManagement
+#    provider: openshift
+  name: elasticsearch-custom-rollover
+  namespace: openshift-logging
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      parallelism: 1
+      template:
+        metadata:
+#          labels:
+#            component: indexManagement
+#            logging-infra: indexManagement
+#            provider: openshift
+          name: indexmanagement
+          namespace: openshift-logging
+        spec:
+          containers:
+            - args:
+                - -c
+                - ./rollover
+              command:
+                - bash
+              env:
+                - name: POLICY_MAPPING
+                  value: app
+                - name: MIN_AGE
+                  value: "60000"
+                - name: PAYLOAD
+                  # The value below is the out of:
+                  # echo '{"conditions":{"max_age":"3s","max_docs":1000,"max_size":"120gb"}}' | base64 -w 0
+                  value: eyJjb25kaXRpb25zIjp7Im1heF9hZ2UiOiIzcyIsIm1heF9kb2NzIjoxMDAwLCJtYXhfc2l6ZSI6IjEyMGdiIn19Cg==
+                - name: ES_SERVICE
+                  value: https://elasticsearch:9200
+              image: quay.io/openshift-logging/curator5:5.8.1
+              imagePullPolicy: IfNotPresent
+              name: indexmanagement
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 32Mi
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+              volumeMounts:
+                - mountPath: /etc/indexmanagement/keys
+                  name: certs
+                  readOnly: true
+                - mountPath: /tmp/scripts
+                  name: scripts
+              workingDir: /tmp/scripts
+          dnsPolicy: ClusterFirst
+          nodeSelector:
+            kubernetes.io/os: linux
+          restartPolicy: Never
+          schedulerName: default-scheduler
+          securityContext: {}
+          serviceAccount: elasticsearch
+          serviceAccountName: elasticsearch
+          terminationGracePeriodSeconds: 300
+          volumes:
+            - name: certs
+              secret:
+                defaultMode: 420
+                secretName: elasticsearch
+            - configMap:
+                defaultMode: 511
+                name: indexmanagement-scripts
+              name: scripts
+  schedule: '*/1 * * * *'
+  successfulJobsHistoryLimit: 1
+  suspend: false

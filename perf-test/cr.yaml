@@ -5,13 +5,6 @@ metadata:
 spec:
   logStore:
     type: "elasticsearch"
-    retentionPolicy:
-      application:
-        maxAge: 1m
-      infra:
-        maxAge: 1m
-      audit:
-        maxAge: 1m
     elasticsearch:
       nodeCount: 3
       resources:
