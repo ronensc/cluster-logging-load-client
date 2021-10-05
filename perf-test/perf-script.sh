@@ -5,8 +5,8 @@ APP_IMAGE="quay.io/openshift-logging/cluster-logging-load-client:0.1"
 APP_STRUCTRED_NS="logger-structured"
 APP_UNSTRUCTRED_NS="logger-unstructured"
 REPLICAS=200
-LOG_LINES_RATE=500
-LOG_LINES_PER_INSTANCE=10000
+LOG_LINES_RATE=100
+LOG_LINES_PER_INSTANCE=60000
 
 function install-EO() {
   echo ">>> Installing elasticsearch operator"
@@ -111,8 +111,8 @@ function run() {
   oc rollout status daemonset/fluentd
   oc wait --for=condition=ready pod -n openshift-logging -l component=fluentd
   deploy-app-unstructured
-  echo ">>> Wait for 30 seconds to build stress on elasticsearch"
-  sleep 30s
+  echo ">>> Wait for 120 seconds to build stress on elasticsearch"
+  sleep 120s
   deploy-app-structured
 }
 
