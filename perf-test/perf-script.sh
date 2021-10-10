@@ -8,8 +8,12 @@ REPLICAS=200
 LOG_LINES_RATE=100
 LOG_LINES_PER_INSTANCE=60000
 
+function echo_ts() {
+  date +"[%FT%T%z] $*"
+}
+
 function install-EO() {
-  echo ">>> Installing elasticsearch operator"
+  echo_ts ">>> Installing elasticsearch operator"
   pushd "$TOP_LEVEL_DIR/../../openshift/elasticsearch-operator/"
   make elasticsearch-catalog-deploy
   make elasticsearch-operator-install
@@ -17,14 +21,14 @@ function install-EO() {
 }
 
 function cleanup-EO() {
-  echo ">>> Cleaning up elasticsearch operator"
+  echo_ts ">>> Cleaning up elasticsearch operator"
   pushd "$TOP_LEVEL_DIR/../../openshift/elasticsearch-operator/"
   make elasticsearch-cleanup
   popd
 }
 
 function install-CLO() {
-  echo ">>> Installing cluster-logging operator"
+  echo_ts ">>> Installing cluster-logging operator"
   pushd "$TOP_LEVEL_DIR/../../openshift/cluster-logging-operator"
   make cluster-logging-catalog-deploy
   make cluster-logging-operator-install
@@ -32,31 +36,31 @@ function install-CLO() {
 }
 
 function cleanup-CLO() {
-  echo ">>> Cleaning up cluster-logging operator"
+  echo_ts ">>> Cleaning up cluster-logging operator"
   pushd "$TOP_LEVEL_DIR/../../openshift/cluster-logging-operator"
   make cluster-logging-cleanup
   popd
 }
 
 function instantiate-CLO() {
-  echo "Moving to project openshift-logging"
+  echo_ts "Moving to project openshift-logging"
   oc project openshift-logging
-  echo ">>> Instantiating CLO"
+  echo_ts ">>> Instantiating CLO"
   oc create -n openshift-logging -f "$TOP_LEVEL_DIR/perf-test/cr.yaml"
-  echo ">>> Installing rollover cronjob"
+  echo_ts ">>> Installing rollover cronjob"
   oc create -n openshift-logging -f "$TOP_LEVEL_DIR/perf-test/rollover.yaml"
 }
 
 function create-app-namespaces() {
-  echo ">>> Createing namespace $APP_STRUCTRED_NS"
+  echo_ts ">>> Createing namespace $APP_STRUCTRED_NS"
   oc create ns "$APP_STRUCTRED_NS"
 
-  echo ">>> Createing namespace $APP_UNSTRUCTRED_NS"
+  echo_ts ">>> Createing namespace $APP_UNSTRUCTRED_NS"
   oc create ns "$APP_UNSTRUCTRED_NS"
 }
 
 function deploy-log-forwarder() {
-  echo ">>> Configuring log forwarder"
+  echo_ts ">>> Configuring log forwarder"
   oc process -f "$TOP_LEVEL_DIR/perf-test/logforwarder.yaml" \
     -p app_structured_ns="$APP_STRUCTRED_NS" \
     -p app_unstructured_ns="$APP_UNSTRUCTRED_NS" |
@@ -64,7 +68,7 @@ function deploy-log-forwarder() {
 }
 
 function deploy-app-structured() {
-  echo ">>> Deploying app structured"
+  echo_ts ">>> Deploying app structured"
   oc project "$APP_STRUCTRED_NS"
   oc process -f "$TOP_LEVEL_DIR/perf-test/app.yaml" \
     -p image="$APP_IMAGE" \
@@ -76,12 +80,12 @@ function deploy-app-structured() {
 }
 
 function cleanup-app-structured() {
-  echo ">>> Cleaning up app structured"
+  echo_ts ">>> Cleaning up app structured"
   oc delete ns "$APP_STRUCTRED_NS"
 }
 
 function deploy-app-unstructured() {
-  echo ">>> Deploying app unstructured"
+  echo_ts ">>> Deploying app unstructured"
   oc project "$APP_UNSTRUCTRED_NS"
   oc process -f "$TOP_LEVEL_DIR/perf-test/app.yaml" \
     -p image="$APP_IMAGE" \
@@ -93,7 +97,7 @@ function deploy-app-unstructured() {
 }
 
 function cleanup-app-unstructured() {
-  echo ">>> Cleaning up app unstructured"
+  echo_ts ">>> Cleaning up app unstructured"
   oc delete ns "$APP_UNSTRUCTRED_NS"
 }
 
@@ -106,12 +110,12 @@ function deploy_ops() {
 function run() {
   create-app-namespaces
   deploy-log-forwarder
-  echo ">>> Wait for fluentd pods to be ready"
+  echo_ts ">>> Wait for fluentd pods to be ready"
   # "oc wait" is not enough as if no pods were created yet, it doesn't wait. That's why, "oc rollout" is run before.
   oc rollout status daemonset/fluentd
   oc wait --for=condition=ready pod -n openshift-logging -l component=fluentd
   deploy-app-unstructured
-  echo ">>> Wait for 120 seconds to build stress on elasticsearch"
+  echo_ts ">>> Wait for 120 seconds to build stress on elasticsearch"
   sleep 120s
   deploy-app-structured
 }
@@ -127,7 +131,7 @@ function cleanup_apps() {
 }
 
 function show_usage() {
-  echo "help message"
+  echo_ts "help message"
 }
 
 function main() {
