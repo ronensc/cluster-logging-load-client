@@ -10,6 +10,9 @@ spec:
       resources:
         requests:
           limits: 2Gi
+#        limits:
+#          cpu: "1"
+#          memory: 2Gi
       redundancyPolicy: "FullRedundancy"
   visualization:
     type: "kibana"
@@ -19,3 +22,9 @@ spec:
     logs:
       type: "fluentd"
       fluentd: {}
+  forwarder:
+    fluentd:
+      buffer:
+        chunkLimitSize: 4m
+        flushMode: immediate
+        flushThreadCount: 8
