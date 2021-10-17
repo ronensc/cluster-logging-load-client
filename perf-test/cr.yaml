@@ -25,6 +25,6 @@ spec:
   forwarder:
     fluentd:
       buffer:
-        chunkLimitSize: 4m
+        chunkLimitSize: 1m
         flushMode: immediate
-        flushThreadCount: 8
+        flushThreadCount: 32
